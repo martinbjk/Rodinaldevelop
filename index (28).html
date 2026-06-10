@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rodinal Film Assistant</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a1a18">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Rodinal Film Assistant">
+<link rel="apple-touch-icon" href="icon-512.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;padding:1rem;max-width:600px;margin:auto}
+/* Disclaimer overlay */
+#disclaimer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+#disclaimer-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto}
+#disclaimer-box h2{font-size:17px;font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+#disclaimer-box p{font-size:13px;line-height:1.65;color:#333;margin-bottom:.75rem}
+#disclaimer-box .accept-row{display:flex;align-items:flex-start;gap:10px;margin-top:1rem;margin-bottom:1rem}
+#disclaimer-box .accept-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;margin-top:2px;accent-color:#1a1a18}
+#disclaimer-box .accept-row label{font-size:13px;line-height:1.5;color:#1a1a18;cursor:pointer}
+#btn-accept{width:100%;padding:11px;border:none;border-radius:8px;background:#1a1a18;color:#f0efe8;font-size:15px;font-weight:500;cursor:pointer;opacity:.4;transition:opacity .2s}
+#btn-accept.ready{opacity:1}
+/* App */
+h1{font-size:19px;font-weight:500;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.amber{color:#c07a00;font-weight:700}
+.lang-bar{display:flex;gap:6px;margin-bottom:1rem}
+.lang-btn{padding:5px 14px;border:1px solid #d3d1c7;border-radius:20px;background:#fff;color:#5f5e5a;font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
+.lang-btn.active{background:#1a1a18;color:#f0efe8;border-color:#1a1a18}
+.section{background:#fff;border:1px solid #e0dfd8;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.section-title{font-size:12px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;display:flex;align-items:center;gap:6px}
+label{font-size:13px;color:#5f5e5a;display:block;margin-bottom:4px;margin-top:10px}
+label:first-of-type{margin-top:0}
+select,input[type=number]{width:100%;padding:8px 10px;border:1px solid #d3d1c7;border-radius:8px;font-size:14px;background:#f5f4f0;color:#1a1a18;outline:none;-webkit-appearance:none}
+select:focus,input:focus{box-shadow:0 0 0 2px #f5d98a;border-color:#c07a00}
+button.primary{width:100%;padding:9px;margin-top:12px;border:1px solid #d3d1c7;border-radius:8px;background:#f5f4f0;color:#1a1a18;font-size:14px;cursor:pointer;font-weight:500;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .15s}
+button.primary:hover{background:#e8e7e2}
+button.primary:active{transform:scale(.98)}
+.result-box{margin-top:10px;background:#f5f4f0;border-radius:8px;padding:10px 12px;font-size:14px;line-height:1.7;color:#1a1a18}
+.result-box strong{font-weight:500}
+.info-box{font-size:12px;color:#5f5e5a;background:#faf9f5;border-radius:8px;padding:8px 10px;margin-top:8px;line-height:1.5;border:1px solid #e8e7df}
+.timer-display{font-size:52px;font-weight:500;text-align:center;padding:12px 0;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.timer-done{color:#888780;font-size:24px}
+.hf-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.hf-card{background:#f5f4f0;border-radius:8px;padding:10px 8px;text-align:center}
+.hf-f{font-size:13px;color:#5f5e5a;margin-bottom:2px}
+.hf-v{font-size:16px;font-weight:500}
+textarea{width:100%;padding:8px 10px;border:1px solid #d3d1c7;border-radius:8px;font-size:16px;line-height:1.6;background:#f5f4f0;color:#1a1a18;outline:none;resize:vertical;min-height:120px;font-family:system-ui,-apple-system,sans-serif}
+textarea:focus{box-shadow:0 0 0 2px #f5d98a;border-color:#c07a00}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-top:6px;font-weight:500}
+.tag-push{background:#faeeda;color:#854f0b}
+.tag-pull{background:#e6f1fb;color:#185fa5}
+.tag-normal{background:#eaf3de;color:#3b6d11}
+.disclaimer-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:#888780;background:none;border:none;cursor:pointer;padding:0;margin-bottom:.5rem;text-decoration:underline}
+@media(prefers-color-scheme:dark){
+  body{background:#1e1e1c;color:#f0efe8}
+  h1{color:#f0efe8}
+  #disclaimer-box{background:#2c2c2a;color:#f0efe8}
+  #disclaimer-box p{color:#b4b2a9}
+  #disclaimer-box .accept-row label{color:#f0efe8}
+  #btn-accept{background:#f0efe8;color:#1a1a18}
+  .lang-btn{background:#2c2c2a;border-color:#444441;color:#b4b2a9}
+  .lang-btn.active{background:#f0efe8;color:#1a1a18;border-color:#f0efe8}
+  .section{background:#2c2c2a;border-color:#444441}
+  select,input[type=number],textarea,button.primary{background:#1e1e1c;color:#f0efe8;border-color:#444441}
+  button.primary:hover{background:#2c2c2a}
+  .result-box,.hf-card{background:#1e1e1c;color:#f0efe8}
+  .info-box{background:#252523;border-color:#3a3a38;color:#b4b2a9}
+  .section-title{color:#888780}
+  label{color:#b4b2a9}
+  .timer-done{color:#888780}
+  .hf-f{color:#888780}
+  .tag-push{background:#633806;color:#fac775}
+  .tag-pull{background:#0c447c;color:#b5d4f4}
+  .tag-normal{background:#27500a;color:#c0dd97}
+  .disclaimer-btn{color:#666462}
+}
+</style>
+</head>
+<body>
+
+<!-- DISCLAIMER OVERLAY -->
+<div id="disclaimer-overlay">
+  <div id="disclaimer-box">
+    <h2>⚠️ <span data-t="disclaimerTitle"></span></h2>
+    <p data-t="disclaimerBody"></p>
+    <p data-t="disclaimerBody2"></p>
+    <p><strong data-t="disclaimerBody3"></strong></p>
+    <div class="accept-row">
+      <input type="checkbox" id="accept-cb" onchange="toggleAccept()">
+      <label for="accept-cb" data-t="disclaimerAccept"></label>
+    </div>
+    <button id="btn-accept" onclick="acceptDisclaimer()" disabled data-t="disclaimerBtn"></button>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('sv')">SV</button>
+  <button class="lang-btn" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" onclick="setLang('de')">DE</button>
+</div>
+
+<h1><span class="amber">R</span> <span data-t="appTitle"></span></h1>
+<button class="disclaimer-btn" onclick="showDisclaimer()"><i class="ti ti-alert-triangle"></i> <span data-t="showDisclaimer"></span></button>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-camera"></i> <span data-t="sec1Title"></span></div>
+  <label data-t="labelFilm"></label>
+  <select id="film" onchange="onFilmChange()"></select>
+  <label data-t="labelDilution"></label>
+  <select id="dilution" onchange="calc()">
+    <option value="25">Rodinal 1+25</option>
+    <option value="50" selected>Rodinal 1+50</option>
+    <option value="100">Rodinal 1+100</option>
+  </select>
+  <label data-t="labelIso"></label>
+  <input id="iso" type="number" oninput="calc()">
+  <div id="result"></div>
+  <div id="agitation-box" class="info-box" style="display:none"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-droplet"></i> <span data-t="sec2Title"></span></div>
+  <label data-t="labelVol"></label>
+  <input id="vol" type="number" value="500" oninput="mix()">
+  <div id="mixout"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-clock"></i> <span data-t="sec3Title"></span></div>
+  <label data-t="labelMins"></label>
+  <input id="mins" type="number" value="11">
+  <button class="primary" onclick="startTimer()"><i class="ti ti-player-play"></i> <span data-t="btnTimer"></span></button>
+  <div id="timer" class="timer-display timer-done" data-t="timerReady"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-photo"></i> <span data-t="sec4Title"></span></div>
+  <label data-t="labelNeg"></label>
+  <select id="negSel" onchange="analyse(this.value)">
+    <option data-t="negNormal"></option>
+    <option data-t="negThin"></option>
+    <option data-t="negDense"></option>
+  </select>
+  <div id="analysis" class="result-box" style="margin-top:10px"></div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-ruler-measure"></i> <span data-t="sec5Title"></span></div>
+  <div class="hf-grid">
+    <div class="hf-card"><div class="hf-f">f/8</div><div class="hf-v">≈ 13 m</div></div>
+    <div class="hf-card"><div class="hf-f">f/11</div><div class="hf-v">≈ 9 m</div></div>
+    <div class="hf-card"><div class="hf-f">f/16</div><div class="hf-v">≈ 6 m</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title"><i class="ti ti-notebook"></i> <span data-t="sec6Title"></span></div>
+  <textarea id="log" data-t-placeholder="logPlaceholder"></textarea>
+  <div class="btn-row">
+    <button class="primary" onclick="saveLog()"><i class="ti ti-device-floppy"></i> <span data-t="btnSave"></span></button>
+    <button class="primary" onclick="exportLog()"><i class="ti ti-download"></i> <span data-t="btnExport"></span></button>
+  </div>
+  <div id="log-status" style="font-size:12px;color:#888780;margin-top:6px;min-height:16px"></div>
+</div>
+</div><!-- /app -->
+
+<script>
+// ── FILM DATABASE ──────────────────────────────────────────────
+const filmDB = [
+  {name:"Ilford Pan F Plus",iso:50,r25:8,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut. Kan köras semi-stand vid 1+100.",agEN:"Standard: 30s initial + 10s/min. Semi-stand possible at 1+100.",agDE:"Standard: 30s initial + 10s/min. Semi-Stand bei 1+100 möglich.",comment:"Bra match."},
+  {name:"Ilford FP4 Plus",iso:125,r25:8,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/minut. Lättare agitation ger mjukare toner.",agEN:"Standard: 30s initial + 10s/min. Lighter agitation gives softer tones.",agDE:"Standard: 30s initial + 10s/min. Leichtere Agitation ergibt weichere Töne.",comment:"Ofta 9–15 min vid 1+50."},
+  {name:"Ilford HP5 Plus",iso:400,r25:7,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/min. Vid 1+100: semi-stand.",agEN:"Standard: 30s initial + 10s/min. At 1+100: semi-stand.",agDE:"Standard: 30s initial + 10s/min. Bei 1+100: Semi-Stand.",comment:"Vanligt 11–13 min vid 1+50."},
+  {name:"Ilford Delta 100",iso:100,r25:8,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra startvärden."},
+  {name:"Ilford Delta 400",iso:400,r25:8,r50:11,r100:19,agSV:"Standard: 30s initialt + 10s/min. Mindre agitation ger finare korn.",agEN:"Standard: 30s initial + 10s/min. Less agitation = finer grain.",agDE:"Standard: 30s initial + 10s/min. Weniger Agitation = feineres Korn.",comment:"Testa 10–12 min vid 1+50."},
+  {name:"Ilford Ortho Plus",iso:80,r25:8,r50:9,r100:17,agSV:"Standard: 30s initialt + 10s/minut. Skonsam agitation rekommenderas.",agEN:"Standard: 30s initial + 10s/min. Gentle agitation recommended.",agDE:"Standard: 30s initial + 10s/min. Sanfte Agitation empfohlen.",comment:"Bra för ortho-film."},
+  {name:"Kentmere 100",iso:100,r25:8,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Kentmere 400",iso:400,r25:8,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/min. Liknar HP5.",agEN:"Standard: 30s initial + 10s/min. Similar to HP5.",agDE:"Standard: 30s initial + 10s/min. Ähnlich wie HP5.",comment:"Liknar HP5."},
+  {name:"Kodak Tri-X 400",iso:400,r25:9,r50:14,r100:22,agSV:"Standard: 30s initialt + 10s/min. Många kör semi-stand vid 1+100.",agEN:"Standard: 30s initial + 10s/min. Many use semi-stand at 1+100.",agDE:"Standard: 30s initial + 10s/min. Viele nutzen Semi-Stand bei 1+100.",comment:"13–16 min vid 1+50."},
+  {name:"Kodak T-Max 100",iso:100,r25:8,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/min. T-Max gillar konsekvent agitation.",agEN:"Standard: 30s initial + 10s/min. T-Max likes consistent agitation.",agDE:"Standard: 30s initial + 10s/min. T-Max mag gleichmäßige Agitation.",comment:"T-Max kan behöva kortare tider."},
+  {name:"Kodak T-Max 400",iso:400,r25:8,r50:11,r100:19,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra start."},
+  {name:"Kodak Double-X 5222",iso:250,r25:8,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra för cine-film."},
+  {name:"Fomapan 100",iso:100,r25:7,r50:9,r100:16,agSV:"Standard: 30s initialt + 10s/min. Mycket bra med Rodinal.",agEN:"Standard: 30s initial + 10s/min. Excellent with Rodinal.",agDE:"Standard: 30s initial + 10s/min. Sehr gut mit Rodinal.",comment:"Ofta 9 min vid 1+50."},
+  {name:"Fomapan 200",iso:200,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Rimligt."},
+  {name:"Fomapan 400",iso:400,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/min. Kan köras semi-stand.",agEN:"Standard: 30s initial + 10s/min. Semi-stand possible.",agDE:"Standard: 30s initial + 10s/min. Semi-Stand möglich.",comment:"Bra."},
+  {name:"Rollei RPX 25",iso:25,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"OK."},
+  {name:"Rollei RPX 100",iso:100,r25:8,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Rollei RPX 400",iso:400,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/min. Eller semi-stand vid 1+100.",agEN:"Standard: 30s initial + 10s/min. Or semi-stand at 1+100.",agDE:"Standard: 30s initial + 10s/min. Oder Semi-Stand bei 1+100.",comment:"Bra."},
+  {name:"Rollei Retro 80S",iso:80,r25:9,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra för låg-ISO."},
+  {name:"Rollei Superpan 200",iso:200,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Rimligt."},
+  {name:"Adox CHS 100 II",iso:100,r25:8,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Stämmer väl."},
+  {name:"Adox HR-50",iso:50,r25:8,r50:10,r100:17,agSV:"Standard: 30s initialt + 10s/min. Skonsam agitation för finkorn.",agEN:"Standard: 30s initial + 10s/min. Gentle agitation for fine grain.",agDE:"Standard: 30s initial + 10s/min. Sanfte Agitation für Feinkorn.",comment:"Bra för finkornig film."},
+  {name:"Adox Scala 50",iso:50,r25:8,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Ferrania P30",iso:80,r25:10,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra start."},
+  {name:"Agfa APX 25",iso:25,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"OK."},
+  {name:"Agfa APX 100",iso:100,r25:8,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Agfa APX 400",iso:400,r25:9,r50:12,r100:20,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Efke 25",iso:25,r25:9,r50:10,r100:18,agSV:"Standard: 30s initialt + 10s/min. Skonsam agitation för finkorn.",agEN:"Standard: 30s initial + 10s/min. Gentle agitation for fine grain.",agDE:"Standard: 30s initial + 10s/min. Sanfte Agitation für Feinkorn.",comment:"Klassisk finkornig film."},
+  {name:"Efke 50",iso:50,r25:9,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."},
+  {name:"Efke 100",iso:100,r25:9,r50:11,r100:18,agSV:"Standard: 30s initialt + 10s/minut.",agEN:"Standard: 30s initial + 10s/min.",agDE:"Standard: 30s initial + 10s/min.",comment:"Bra."}
+];
+
+// ── i18n ──────────────────────────────────────────────────────
+const i18n={
+  sv:{
+    appTitle:"Rodinal Film Assistant",
+    disclaimerTitle:"Viktig ansvarsfriskrivning",
+    disclaimerBody:"Alla framkallningstider i denna app är ENDAST ungefärliga startvärden hämtade från offentliga källor (Massive Dev Chart, tillverkaruppgifter, användarrapporter). De är INTE garanterade att ge korrekta resultat.",
+    disclaimerBody2:"Filmutveckling påverkas av många faktorer: agitation, temperatur, vattenkvalitet, film-batch, tanktyp och personlig teknik. Testa alltid med testremsor och justera efter dina egna förhållanden.",
+    disclaimerBody3:"Du använder dessa tider PÅ HELT EGET ANSVAR. Utgivaren frånsäger sig allt ansvar för skadade filmer, felaktiga negativer eller andra konsekvenser. Konsultera alltid tillverkarens officiella rekommendationer.",
+    disclaimerAccept:"Jag har läst och förstår att alla tider är ungefärliga startvärden och att jag använder appen på eget ansvar.",
+    disclaimerBtn:"Jag accepterar – visa appen",
+    showDisclaimer:"Visa ansvarsfriskrivning",
+    sec1Title:"Film & Rodinal",sec2Title:"Rodinalblandning",sec3Title:"Framkallningstimer",
+    sec4Title:"Negativanalys",sec5Title:"Yashica Mat 80mm hyperfokal",sec6Title:"Loggbok",
+    labelFilm:"Film",labelDilution:"Spädning",labelIso:"Exponerad som ISO",
+    labelVol:"Volym vätska (ml)",labelMins:"Minuter",labelNeg:"Negativets karaktär",
+    btnTimer:"Starta timer",btnSave:"Spara",btnExport:"Exportera .txt",
+    timerReady:"Klar",timerDone:"Klar!",
+    negNormal:"Normal",negThin:"Tunt negativ",negDense:"Tätt negativ",
+    filmISO:"Filmens ISO",devTime:"Framkallningstid",min:"min",agitation:"Agitation",
+    rodinal:"Rodinal",water:"Vatten",
+    msgNormal:"Normal exponering.",msgPush:"Push: ökar kontrast och korn.",msgPull:"Pull: mer skuggdetalj, mjukare kontrast.",
+    tagNormal:"Normal",tagPush:"Push",tagPull:"Pull",
+    analysisNormal:"Negativet ser normalt ut.",
+    analysisThin:"Öka exponeringen ½–1 steg nästa gång.",
+    analysisDense:"Minska framkallningstiden ca 10 %.",
+    logPlaceholder:"Datum, film, ISO, tid, framkallning, noteringar…",
+    saved:"✓ Sparad",empty:"Loggboken är tom",saveErr:"Kunde inte spara",
+    noteLabel:"Not"
+  },
+  en:{
+    appTitle:"Rodinal Film Assistant",
+    disclaimerTitle:"Important Disclaimer",
+    disclaimerBody:"All development times in this app are APPROXIMATE starting points only, sourced from public references (Massive Dev Chart, manufacturer data, user reports). They are NOT guaranteed to produce correct results.",
+    disclaimerBody2:"Film development is affected by many factors: agitation, temperature, water quality, film batch, tank type and personal technique. Always test with test strips and adjust to your own conditions.",
+    disclaimerBody3:"You use these times ENTIRELY AT YOUR OWN RISK. The publisher disclaims all liability for damaged films, incorrect negatives or any other consequences. Always consult the manufacturer's official recommendations.",
+    disclaimerAccept:"I have read and understand that all times are approximate starting points and that I use the app at my own risk.",
+    disclaimerBtn:"I accept – show the app",
+    showDisclaimer:"Show disclaimer",
+    sec1Title:"Film & Rodinal",sec2Title:"Rodinal Mix",sec3Title:"Development Timer",
+    sec4Title:"Negative Analysis",sec5Title:"Yashica Mat 80mm Hyperfocal",sec6Title:"Logbook",
+    labelFilm:"Film",labelDilution:"Dilution",labelIso:"Exposed at ISO",
+    labelVol:"Total volume (ml)",labelMins:"Minutes",labelNeg:"Negative character",
+    btnTimer:"Start timer",btnSave:"Save",btnExport:"Export .txt",
+    timerReady:"Ready",timerDone:"Done!",
+    negNormal:"Normal",negThin:"Thin negative",negDense:"Dense negative",
+    filmISO:"Film ISO",devTime:"Development time",min:"min",agitation:"Agitation",
+    rodinal:"Rodinal",water:"Water",
+    msgNormal:"Normal exposure.",msgPush:"Push: increases contrast and grain.",msgPull:"Pull: more shadow detail, softer contrast.",
+    tagNormal:"Normal",tagPush:"Push",tagPull:"Pull",
+    analysisNormal:"The negative looks normal.",
+    analysisThin:"Increase exposure by ½–1 stop next time.",
+    analysisDense:"Reduce development time by approx. 10%.",
+    logPlaceholder:"Date, film, ISO, time, development, notes…",
+    saved:"✓ Saved",empty:"Logbook is empty",saveErr:"Could not save",
+    noteLabel:"Note"
+  },
+  de:{
+    appTitle:"Rodinal Film Assistent",
+    disclaimerTitle:"Wichtiger Haftungsausschluss",
+    disclaimerBody:"Alle Entwicklungszeiten in dieser App sind NUR ungefähre Richtwerte aus öffentlichen Quellen (Massive Dev Chart, Herstellerangaben, Nutzerberichte). Sie garantieren KEINE korrekten Ergebnisse.",
+    disclaimerBody2:"Die Filmentwicklung wird von vielen Faktoren beeinflusst: Agitation, Temperatur, Wasserqualität, Filmcharge, Tankstyp und persönliche Technik. Testen Sie immer mit Teststreifen und passen Sie die Zeiten an Ihre Bedingungen an.",
+    disclaimerBody3:"Sie verwenden diese Zeiten AUF EIGENE GEFAHR. Der Herausgeber lehnt jede Haftung für beschädigte Filme, fehlerhafte Negative oder sonstige Folgen ab. Konsultieren Sie stets die offiziellen Empfehlungen des Herstellers.",
+    disclaimerAccept:"Ich habe gelesen und verstehe, dass alle Zeiten ungefähre Richtwerte sind und ich die App auf eigenes Risiko nutze.",
+    disclaimerBtn:"Ich akzeptiere – App anzeigen",
+    showDisclaimer:"Haftungsausschluss anzeigen",
+    sec1Title:"Film & Rodinal",sec2Title:"Rodinalmischung",sec3Title:"Entwicklungs-Timer",
+    sec4Title:"Negativanalyse",sec5Title:"Yashica Mat 80mm Hyperfokus",sec6Title:"Logbuch",
+    labelFilm:"Film",labelDilution:"Verdünnung",labelIso:"Belichtet als ISO",
+    labelVol:"Gesamtvolumen (ml)",labelMins:"Minuten",labelNeg:"Negativeigenschaft",
+    btnTimer:"Timer starten",btnSave:"Speichern",btnExport:"Exportieren .txt",
+    timerReady:"Bereit",timerDone:"Fertig!",
+    negNormal:"Normal",negThin:"Dünnes Negativ",negDense:"Dichtes Negativ",
+    filmISO:"Film-ISO",devTime:"Entwicklungszeit",min:"Min",agitation:"Agitation",
+    rodinal:"Rodinal",water:"Wasser",
+    msgNormal:"Normale Belichtung.",msgPush:"Push: erhöht Kontrast und Korn.",msgPull:"Pull: mehr Schattendetail, weicherer Kontrast.",
+    tagNormal:"Normal",tagPush:"Push",tagPull:"Pull",
+    analysisNormal:"Das Negativ sieht normal aus.",
+    analysisThin:"Belichtung beim nächsten Mal um ½–1 Blende erhöhen.",
+    analysisDense:"Entwicklungszeit um ca. 10 % reduzieren.",
+    logPlaceholder:"Datum, Film, ISO, Zeit, Entwicklung, Notizen…",
+    saved:"✓ Gespeichert",empty:"Logbuch ist leer",saveErr:"Konnte nicht gespeichert werden",
+    noteLabel:"Hinweis"
+  }
+};
+
+let lang="sv";
+function t(k){return i18n[lang][k]||k;}
+
+function setLang(l){
+  lang=l;
+  document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.textContent===l.toUpperCase()));
+  document.documentElement.lang=l;
+  document.querySelectorAll("[data-t]").forEach(el=>{
+    const v=t(el.getAttribute("data-t"));
+    if(v) el.textContent=v;
+  });
+  document.querySelectorAll("[data-t-placeholder]").forEach(el=>{
+    el.placeholder=t(el.getAttribute("data-t-placeholder"));
+  });
+  const ns=document.getElementById("negSel");
+  ns.options[0].text=t("negNormal");
+  ns.options[1].text=t("negThin");
+  ns.options[2].text=t("negDense");
+  const timerEl=document.getElementById("timer");
+  if(timerEl.classList.contains("timer-done")&&!timerRunning) timerEl.textContent=t("timerReady");
+  document.title=t("appTitle");
+  calc();mix();analyse(ns.value);
+}
+
+// ── FILM SELECT ───────────────────────────────────────────────
+const filmSel=document.getElementById("film");
+filmDB.forEach((f,i)=>{
+  const o=document.createElement("option");
+  o.text=f.name; o.value=i;
+  filmSel.add(o);
+});
+function onFilmChange(){
+  const f=filmDB[filmSel.value];
+  document.getElementById("iso").value=f.iso;
+  calc();
+}
+filmSel.onchange=onFilmChange;
+filmSel.selectedIndex=0;
+
+// ── CALC ──────────────────────────────────────────────────────
+function calc(){
+  const f=filmDB[filmSel.value];
+  const iso=Number(document.getElementById("iso").value)||f.iso;
+  const dil=document.getElementById("dilution").value;
+  const baseTime=dil=="25"?f.r25:dil=="50"?f.r50:f.r100;
+  const stops=Math.log2(iso/f.iso);
+  const time=baseTime*(1+stops*0.25);
+  let msg=t("msgNormal"),tag=`<span class="tag tag-normal">${t("tagNormal")}</span>`;
+  if(stops>0.05){msg=t("msgPush");tag=`<span class="tag tag-push">${t("tagPush")} +${stops.toFixed(1)}</span>`;}
+  else if(stops<-0.05){msg=t("msgPull");tag=`<span class="tag tag-pull">${t("tagPull")} ${stops.toFixed(1)}</span>`;}
+  document.getElementById("result").innerHTML=
+    `<div class="result-box"><strong>${t("filmISO")}:</strong> ${f.iso}<br><strong>${t("devTime")}:</strong> ${time.toFixed(1)} ${t("min")}<br>${msg} ${tag}</div>`;
+  document.getElementById("mins").value=time.toFixed(1);
+  const agKey=lang=="en"?"agEN":lang=="de"?"agDE":"agSV";
+  const agBox=document.getElementById("agitation-box");
+  agBox.style.display="block";
+  agBox.innerHTML=`<strong>${t("agitation")}:</strong> ${f[agKey]}`;
+  mix();
+}
+
+// ── MIX ───────────────────────────────────────────────────────
+function mix(){
+  const v=Number(document.getElementById("vol").value)||500;
+  const r=Number(document.getElementById("dilution").value);
+  const rod=v/(r+1);
+  document.getElementById("mixout").innerHTML=
+    `<div class="result-box"><strong>${t("rodinal")}:</strong> ${rod.toFixed(1)} ml<br><strong>${t("water")}:</strong> ${(v-rod).toFixed(1)} ml</div>`;
+}
+
+// ── TIMER ─────────────────────────────────────────────────────
+let timerInt,timerRunning=false;
+function startTimer(){
+  clearInterval(timerInt);
+  let sec=Math.round(Number(document.getElementById("mins").value)*60);
+  const el=document.getElementById("timer");
+  el.classList.remove("timer-done");
+  timerRunning=true;
+  timerInt=setInterval(()=>{
+    if(sec<0){clearInterval(timerInt);el.textContent=t("timerDone");el.classList.add("timer-done");timerRunning=false;return;}
+    el.textContent=Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+    sec--;
+  },1000);
+}
+
+// ── NEGATIVE ANALYSIS ─────────────────────────────────────────
+function analyse(v){
+  const ns=document.getElementById("negSel");
+  const msgs=[t("analysisNormal"),t("analysisThin"),t("analysisDense")];
+  document.getElementById("analysis").innerText=msgs[ns.selectedIndex]||msgs[0];
+}
+
+// ── LOGBOOK ───────────────────────────────────────────────────
+function saveLog(){
+  try{localStorage.setItem("film_log",document.getElementById("log").value);document.getElementById("log-status").textContent=t("saved");}
+  catch(e){document.getElementById("log-status").textContent=t("saveErr");}
+}
+function exportLog(){
+  const text=document.getElementById("log").value;
+  if(!text.trim()){document.getElementById("log-status").textContent=t("empty");return;}
+  const blob=new Blob([text],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download="FilmLog_"+new Date().toISOString().split("T")[0]+".txt";
+  a.click();
+}
+try{document.getElementById("log").value=localStorage.getItem("film_log")||"";}catch(e){}
+
+// ── DISCLAIMER ────────────────────────────────────────────────
+function toggleAccept(){
+  const cb=document.getElementById("accept-cb");
+  const btn=document.getElementById("btn-accept");
+  btn.disabled=!cb.checked;
+  btn.classList.toggle("ready",cb.checked);
+}
+function acceptDisclaimer(){
+  try{localStorage.setItem("disclaimer_accepted","1");}catch(e){}
+  document.getElementById("disclaimer-overlay").style.display="none";
+  document.getElementById("app").style.display="block";
+}
+function showDisclaimer(){
+  document.getElementById("accept-cb").checked=false;
+  toggleAccept();
+  document.getElementById("disclaimer-overlay").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+// Check if already accepted
+try{
+  if(localStorage.getItem("disclaimer_accepted")==="1"){
+    document.getElementById("disclaimer-overlay").style.display="none";
+    document.getElementById("app").style.display="block";
+  }
+}catch(e){}
+
+// ── INIT ─────────────────────────────────────────────────────
+setLang("sv");
+onFilmChange();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "Rodinal Film Assistant",
+  "short_name": "Rodinal",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#1a1a18",
+  "theme_color": "#1a1a18",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
