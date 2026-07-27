@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Rodinal Film Assistant</title>
+<script>
+try{
+  if(localStorage.getItem("disclaimer_accepted")==="1"){
+    document.documentElement.classList.add("accepted");
+  }
+}catch(e){}
+</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a18">
@@ -17,6 +24,9 @@
 body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;padding:1rem;max-width:600px;margin:auto}
 /* Disclaimer overlay */
 #disclaimer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+html.accepted #disclaimer-overlay{display:none}
+html.accepted #app{display:block}
+.ti{display:inline-block;width:1.1em;text-align:center}
 #disclaimer-box{background:#fff;border-radius:14px;padding:1.5rem;max-width:520px;width:100%;max-height:90vh;overflow-y:auto}
 #disclaimer-box h2{font-size:17px;font-weight:600;margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
 #disclaimer-box p{font-size:13px;line-height:1.65;color:#333;margin-bottom:.75rem}
@@ -416,14 +426,6 @@ function showDisclaimer(){
   document.getElementById("disclaimer-overlay").style.display="flex";
   document.getElementById("app").style.display="none";
 }
-// Check if already accepted
-try{
-  if(localStorage.getItem("disclaimer_accepted")==="1"){
-    document.getElementById("disclaimer-overlay").style.display="none";
-    document.getElementById("app").style.display="block";
-  }
-}catch(e){}
-
 // ── INIT ─────────────────────────────────────────────────────
 setLang("sv");
 onFilmChange();
