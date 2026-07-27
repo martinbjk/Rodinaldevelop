@@ -11,7 +11,8 @@ try{
   }
 }catch(e){}
 </script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css">
+<link rel="preload" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.x/dist/tabler-icons.min.css"></noscript>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1a1a18">
 <meta name="mobile-web-app-capable" content="yes">
@@ -97,15 +98,15 @@ textarea:focus{box-shadow:0 0 0 2px #f5d98a;border-color:#c07a00}
 <!-- DISCLAIMER OVERLAY -->
 <div id="disclaimer-overlay">
   <div id="disclaimer-box">
-    <h2>⚠️ <span data-t="disclaimerTitle"></span></h2>
-    <p data-t="disclaimerBody"></p>
-    <p data-t="disclaimerBody2"></p>
-    <p><strong data-t="disclaimerBody3"></strong></p>
+    <h2>⚠️ <span data-t="disclaimerTitle">Viktig ansvarsfriskrivning</span></h2>
+    <p data-t="disclaimerBody">Alla framkallningstider i denna app är ENDAST ungefärliga startvärden hämtade från offentliga källor (Massive Dev Chart, tillverkaruppgifter, användarrapporter). De är INTE garanterade att ge korrekta resultat.</p>
+    <p data-t="disclaimerBody2">Filmutveckling påverkas av många faktorer: agitation, temperatur, vattenkvalitet, film-batch, tanktyp och personlig teknik. Testa alltid med testremsor och justera efter dina egna förhållanden.</p>
+    <p><strong data-t="disclaimerBody3">Du använder dessa tider PÅ HELT EGET ANSVAR. Utgivaren frånsäger sig allt ansvar för skadade filmer, felaktiga negativer eller andra konsekvenser. Konsultera alltid tillverkarens officiella rekommendationer.</strong></p>
     <div class="accept-row">
       <input type="checkbox" id="accept-cb" onchange="toggleAccept()">
-      <label for="accept-cb" data-t="disclaimerAccept"></label>
+      <label for="accept-cb" data-t="disclaimerAccept">Jag har läst och förstår att alla tider är ungefärliga startvärden och att jag använder appen på eget ansvar.</label>
     </div>
-    <button id="btn-accept" onclick="acceptDisclaimer()" disabled data-t="disclaimerBtn"></button>
+    <button id="btn-accept" onclick="acceptDisclaimer()" disabled data-t="disclaimerBtn">Jag accepterar – visa appen</button>
   </div>
 </div>
 
