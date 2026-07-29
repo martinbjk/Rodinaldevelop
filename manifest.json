@@ -2,12 +2,14 @@
   "id": "/Rodinaldevelop/",
   "name": "Rodinal Film Assistant",
   "short_name": "Rodinal",
+  "description": "Beräkna framkallningstider, agitation och blandning för svartvit film i Rodinal. Inkluderar tidtagarur, negativanalys och loggbok.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1a1a18",
   "theme_color": "#1a1a18",
+  "categories": ["photo", "utilities", "productivity"],
   "icons": [
     {
       "src": "icon-512.png",
