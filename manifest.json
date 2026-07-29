@@ -1,8 +1,11 @@
 {
+  "id": "/Rodinaldevelop/",
   "name": "Rodinal Film Assistant",
   "short_name": "Rodinal",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#1a1a18",
   "theme_color": "#1a1a18",
   "icons": [
