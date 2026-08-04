@@ -8,6 +8,10 @@
 try{
   if(localStorage.getItem("disclaimer_accepted")==="1"){
     document.documentElement.classList.add("accepted");
+    document.addEventListener("DOMContentLoaded",function(){
+      document.getElementById("app").style.display="block";
+      document.getElementById("disclaimer-overlay").style.display="none";
+    });
   }
 }catch(e){}
 </script>
