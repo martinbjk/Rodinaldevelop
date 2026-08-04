@@ -1,9 +1,0 @@
-
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.martinbjork.rodinalfilmassistant",
-        "sha256_cert_fingerprints": ["82:4B:97:CD:A5:D5:40:90:DF:D7:62:F0:A9:48:F5:77:62:21:DB:CD:B7:51:70:1A:42:9A:24:88:46:85:C2:9F"]
-      }
-    }]
