@@ -1,8 +1,10 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "com.martinbjork.rodinalfilmassistant",
-    "sha256_cert_fingerprints": ["61:48:2F:55:D2:73:92:DC:8D:93:FE:CB:CC:E8:9D:10:2C:98:3B:5C:6B:85:92:9E:E8:38:CC:A0:E6:8C:7B:45"]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.martinbjork.rodinalfilmassistant",
+      "sha256_cert_fingerprints": ["61:48:2F:55:D2:73:92:DC:8D:93:FE:CB:CC:E8:9D:10:2C:98:3B:5C:6B:85:92:9E:E8:38:CC:A0:E6:8C:7B:45"]
+    }
   }
-}]
+]
