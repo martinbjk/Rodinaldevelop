@@ -1,4 +1,4 @@
-const CACHE = 'rodinal-v1';
+const CACHE = 'rodinal-v2'; // ← höj denna siffra vid varje deploy
 const ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,14 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  // Network-first för HTML/navigering, så du alltid får senaste versionen
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+  // Cache-first för statiska tillgångar (ikoner, manifest) — funkar offline
   e.respondWith(
     caches.match(e.request).then(cached => cached || fetch(e.request))
   );
