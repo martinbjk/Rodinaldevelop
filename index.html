@@ -376,19 +376,70 @@ function mix(){
 }
 
 // ── TIMER ─────────────────────────────────────────────────────
-let timerInt,timerRunning=false;
+// Uses a fixed end-time (wall clock) instead of counting down tick by
+// tick, so the display is always correct even after the browser throttles
+// or fully suspends setInterval in the background (app switched away,
+// screen locked, phone call, etc). The end time is also persisted to
+// localStorage so a running timer survives the app being closed/reloaded.
+const TIMER_STORAGE_KEY="rodinalTimerEndTime";
+let timerInt,timerRunning=false,timerEndTime=null;
+
 function startTimer(){
   clearInterval(timerInt);
-  let sec=Math.round(Number(document.getElementById("mins").value)*60);
-  const el=document.getElementById("timer");
-  el.classList.remove("timer-done");
+  const sec=Math.round(Number(document.getElementById("mins").value)*60);
+  timerEndTime=Date.now()+sec*1000;
+  localStorage.setItem(TIMER_STORAGE_KEY,String(timerEndTime));
   timerRunning=true;
-  timerInt=setInterval(()=>{
-    if(sec<0){clearInterval(timerInt);el.textContent=t("timerDone");el.classList.add("timer-done");timerRunning=false;return;}
-    el.textContent=Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
-    sec--;
-  },1000);
+  runTimerLoop();
 }
+
+function renderTimer(){
+  const el=document.getElementById("timer");
+  if(timerEndTime==null)return;
+  const remainingMs=timerEndTime-Date.now();
+  if(remainingMs<=0){
+    clearInterval(timerInt);
+    timerRunning=false;
+    timerEndTime=null;
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+    el.textContent=t("timerDone");
+    el.classList.add("timer-done");
+    if(navigator.vibrate)navigator.vibrate([200,100,200]);
+    return;
+  }
+  const sec=Math.round(remainingMs/1000);
+  el.classList.remove("timer-done");
+  el.textContent=Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+}
+
+function runTimerLoop(){
+  clearInterval(timerInt);
+  renderTimer();
+  timerInt=setInterval(renderTimer,1000);
+}
+
+// Recompute instantly whenever the app regains focus (switched back to,
+// unlocked, etc) instead of waiting for the throttled interval to catch up.
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"&&timerRunning)renderTimer();
+});
+window.addEventListener("focus",()=>{
+  if(timerRunning)renderTimer();
+});
+
+// Resume a timer that was still running when the app was last closed.
+(function restoreTimer(){
+  const saved=localStorage.getItem(TIMER_STORAGE_KEY);
+  if(!saved)return;
+  const end=Number(saved);
+  if(end>Date.now()){
+    timerEndTime=end;
+    timerRunning=true;
+    runTimerLoop();
+  } else {
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+  }
+})();
 
 // ── NEGATIVE ANALYSIS ─────────────────────────────────────────
 function analyse(v){
